@@ -36,6 +36,14 @@ const CONFIG = {
         android: '#FF9800',
         ios: 'rgb(255, 149, 0)'
     }),
+    purple: Platform.select({
+        android: '#9C27B0',
+        ios: 'rgb(88, 86, 214)'
+    }),
+    yellow: Platform.select({
+        android: '#FFEB3B',
+        ios: 'rgb(255, 204, 0)'
+    }),
     teal: Platform.select({
         android: '#009688'
     }),

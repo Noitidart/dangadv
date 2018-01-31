@@ -3,22 +3,19 @@
 import React, { Component } from 'react'
 import { Text, View } from 'react-native'
 
-import Counter from './Counter'
+import Field from './Field'
 
 import styles from  './styles'
 
-type Props = {
+type Props = {|
     setBackgroundOpaque: () => void
-}
+|}
 
 class AppContent extends Component<Props> {
     render() {
         return (
             <View style={styles.screen}>
-                <Text style={styles.text}>
-                    AppContent
-                </Text>
-                <Counter />
+                <Field />
             </View>
         )
     }
