@@ -41,14 +41,24 @@ class Field extends Component<Props> {
     }
 
     clearStonesAt = (index: number) => {
-        this.buildContigs();
+        const { contigs, stones } = this.state;
+        const contig = contigs[index];
+        const stonesNew = stones.map((stone, index) => contigs[index] === contig ? 0 : stone); // 0 is StoneKind for no stone
+        this.setState(() => ({ stones:stonesNew }));
     }
 
     buildField(): {| stones:$PropertyType<State, 'stones'>, contigs:$PropertyType<State, 'contigs'> |} {
         const stones = new Array(FIELD_SIZE).fill(0).map(() => randBetween(1, 5));
+        // const stones = [
+        //     1, 1, 1, 1, 2, 1,
+        //     2, 2, 2, 2, 2, 2,
+        //     3, 3, 3, 3, 3, 3,
+        //     4, 4, 4, 4, 5, 4,
+        //     5, 5, 5, 5, 5, 5,
+        //     5, 5, 5, 5, 5, 5
+        // ]
         const contigs = this.buildContigs(stones);
 
-        console.log('contigs:', contigs);
         return { stones, contigs };
     }
     buildContigs(stones=this.state.stones) {
@@ -88,8 +98,11 @@ class Field extends Component<Props> {
 
                 // console.log(`${row}, ${col}: ${stone}`);
                 if (getContig(...coords) === undefined) {
+                    const contigBot = stoneBot !== null ? getContig(...coordsBot) : undefined;
                     if (stone === stoneTop) {
                         setContig(...coords, getContig(...coordsTop));
+                    } else if (stone === stoneBot && contigBot !== undefined) {
+                        setContig(...coords, contigBot);
                     } else {
                         setContig(...coords, getNextContig());
                     }
