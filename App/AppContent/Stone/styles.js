@@ -4,10 +4,12 @@ import { StyleSheet } from 'react-native'
 
 import CONFIG from '../../config'
 
+const STONE_SIZE = 48;
+
 const styles = StyleSheet.create({
     stone: {
-        width: 48,
-        height: 48,
+        width: STONE_SIZE,
+        height: STONE_SIZE,
         padding: 1
     },
     stoneInner: {
@@ -34,4 +36,5 @@ const styles = StyleSheet.create({
     }
 })
 
+export { STONE_SIZE }
 export default styles
