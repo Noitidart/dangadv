@@ -22,7 +22,7 @@ class Stone extends Component<Props> {
             <TouchableWithoutFeedback onPress={this.handlePress}>
                 <View style={styles.stone}>
                     <View style={[styles.stoneInner, styles[`stone${kind}`]]} />
-                    <Text style={{position:'absolute', elevation:2}}>{this.props.contig}</Text>
+                    { kind !== 0 && <Text style={{position:'absolute', elevation:2}}>{this.props.contig}</Text> }
                 </View>
             </TouchableWithoutFeedback>
         )

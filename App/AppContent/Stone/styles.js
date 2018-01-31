@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
         flexGrow: 1
     },
     stone0: {
-
+        elevation: 0
     },
     stone1: {
         backgroundColor: CONFIG.purple
