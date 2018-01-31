@@ -48,15 +48,15 @@ class Field extends Component<Props> {
     }
 
     buildField(): {| stones:$PropertyType<State, 'stones'>, contigs:$PropertyType<State, 'contigs'> |} {
-        const stones = new Array(FIELD_SIZE).fill(0).map(() => randBetween(1, 5));
-        // const stones = [
-        //     1, 1, 1, 1, 2, 1,
-        //     2, 2, 2, 2, 2, 2,
-        //     3, 3, 3, 3, 3, 3,
-        //     4, 4, 4, 4, 5, 4,
-        //     5, 5, 5, 5, 5, 5,
-        //     5, 5, 5, 5, 5, 5
-        // ]
+        // const stones = new Array(FIELD_SIZE).fill(0).map(() => randBetween(1, 5));
+        const stones = [
+            1, 1, 1, 1, 2, 1,
+            2, 2, 2, 2, 2, 2,
+            3, 3, 3, 3, 3, 3,
+            4, 4, 4, 4, 5, 4,
+            5, 5, 5, 5, 5, 5,
+            5, 5, 5, 5, 5, 5
+        ]
         const contigs = this.buildContigs(stones);
 
         return { stones, contigs };
