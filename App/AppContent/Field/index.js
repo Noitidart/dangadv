@@ -54,20 +54,28 @@ class Field extends Component<Props> {
     }
 
     buildField(): {| stones:$PropertyType<State, 'stones'>, contigs:$PropertyType<State, 'contigs'> |} {
-        // const stones = new Array(FIELD_SIZE).fill(0).map(() => randBetween(1, 5));
-        const stones = [
-            1, 1, 1, 1, 2, 1,
-            3, 3, 3, 3, 2, 3,
-            3, 3, 3, 2, 2, 3,
-            4, 4, 4, 4, 4, 4,
-            5, 5, 5, 5, 5, 5,
-            5, 5, 5, 5, 5, 5
-        ]
+        const stones = new Array(FIELD_SIZE).fill(0).map(() => randBetween(1, 5));
+        // const stones = [
+        //     1, 1, 1, 1, 2, 1,
+        //     3, 3, 3, 3, 2, 3,
+        //     3, 3, 3, 2, 2, 3,
+        //     4, 4, 4, 4, 4, 4,
+        //     5, 5, 5, 5, 5, 5,
+        //     5, 5, 5, 5, 5, 5
+        // ]
+        // const stones = [
+        //     1, 1, 1, 1, 2, 1,
+        //     2, 2, 2, 2, 2, 2,
+        //     3, 3, 3, 3, 3, 3,
+        //     4, 4, 4, 4, 5, 4,
+        //     5, 5, 5, 5, 5, 5,
+        //     5, 5, 5, 5, 5, 5
+        // ]
         const contigs = this.buildContigs(stones);
 
         return { stones, contigs };
     }
-    buildContigs(stones=this.state.stones) {
+    buildContigs(stones: StoneKind[]) {
         const contigs = new Array(FIELD_SIZE);
 
         let nextContig: Contig = 0;
@@ -87,35 +95,30 @@ class Field extends Component<Props> {
             contigs[getIndex(row, col)] = contig;
         }
 
+        const setContigAndExplore = (row, col, contig: Contig, stone: StoneKind): void => {
+            setContig(row, col, contig);
+            const coordsTop = [row-1, col];
+            const coordsBot = [row+1, col];
+            const coordsRit = [row, col+1];
+            const coordsLef = [row, col-1];
+
+            const stoneTop = getStone(...coordsTop);
+            const stoneBot = getStone(...coordsBot);
+            const stoneRit = getStone(...coordsRit);
+            const stoneLef = getStone(...coordsLef);
+
+            if (stoneTop === stone && getContig(...coordsTop) === undefined) setContigAndExplore(...coordsTop, contig, stone);
+            if (stoneBot === stone && getContig(...coordsBot) === undefined) setContigAndExplore(...coordsBot, contig, stone);
+            if (stoneRit === stone && getContig(...coordsRit) === undefined) setContigAndExplore(...coordsRit, contig, stone);
+            if (stoneLef === stone && getContig(...coordsLef) === undefined) setContigAndExplore(...coordsLef, contig, stone);
+        }
+
         for (let col=0; col<COL_SIZE; col++) {
             for (let row=0; row<ROW_SIZE; row++) {
-
-                const coords = [row, col];
-                const coordsTop = [row-1, col];
-                const coordsBot = [row+1, col];
-                const coordsRit = [row, col+1];
-                const coordsLef = [row, col-1];
-
-                const stone = getStone(...coords);
-                const stoneTop: null | StoneKind = getStone(...coordsTop);
-                const stoneBot: null | StoneKind = getStone(...coordsBot);
-                const stoneRit: null | StoneKind = getStone(...coordsRit);
-                const stoneLef: null | StoneKind = getStone(...coordsLef);
-
-                // console.log(`${row}, ${col}: ${stone}`);
-                if (getContig(...coords) === undefined) {
-                    const contigBot = stoneBot !== null ? getContig(...coordsBot) : undefined;
-                    if (stone === stoneTop) {
-                        setContig(...coords, getContig(...coordsTop));
-                    } else if (stone === stoneBot && contigBot !== undefined) {
-                        setContig(...coords, contigBot);
-                    } else {
-                        setContig(...coords, getNextContig());
-                    }
-                }
-
-                if (stone === stoneRit) {
-                    setContig(...coordsRit, getContig(...coords));
+                if (getContig(row, col) === undefined) {
+                    const contig = getNextContig();
+                    const stone = getStone(row, col);
+                    setContigAndExplore(row, col, contig, stone);
                 }
             }
         }
