@@ -189,7 +189,7 @@ class StageDumb extends Component<Props, State> {
                     this.setState( ({ heros, enemys }) => {
 
                         // attack enemys that are alive
-                        const enemysNew = enemys.map(enemy => !(enemy.kind in kindDamage || enemy.hp === 0) ? enemy : {
+                        const enemysNew = enemys.map(enemy => !(enemy.kind in kindDamage) || enemy.hp === 0 ? enemy : {
                             ...enemy,
                             hp: Math.max(0, enemy.hp - kindDamage[enemy.kind])
                         });
