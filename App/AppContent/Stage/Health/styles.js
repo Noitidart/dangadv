@@ -12,7 +12,8 @@ const styles = StyleSheet.create({
     fill: {
         backgroundColor: CONFIG.red,
         height: '100%',
-        position: 'absolute'
+        position: 'absolute',
+        left: 0
     },
     label: {
         fontWeight: '500',

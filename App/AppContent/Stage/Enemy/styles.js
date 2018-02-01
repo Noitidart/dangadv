@@ -33,6 +33,7 @@ const styles = StyleSheet.create({
         backgroundColor: CONFIG.red,
         height: '10%',
         top: 0,
+        left: 0,
         position: 'absolute'
     },
     label: {

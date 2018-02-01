@@ -96,6 +96,74 @@ class Stage extends Component<Props, State> {
             }
         } )
     }
+
+    componentDidUpdate() {
+        const { action, actionMax } = this.state;
+
+        if (action - 1 === actionMax) {
+            this.setState(({ enemys, round, hp, heros, dp }) => {
+                let damageToUser = 0;
+
+                const damageToEnemyk = {
+                    '1': 0,
+                    '2': 0,
+                    '3': 0,
+                    '4': 0,
+                    '5': 0
+                }
+
+                const herosNew = heros.map( hero => {
+                    const { kind, au, ap } = hero;
+
+                    if (au) {
+                        let halfKind0 = kind - 1;
+                        let halfKind1 = kind + 1
+                        if (halfKind0 === 0) halfKind0 = 5; // MAGIC:
+                        if (halfKind1 === 6) halfKind1 = 1 // MAGIC:
+
+                        damageToEnemyk[halfKind0] += (au * ap) / 2;
+                        damageToEnemyk[halfKind1] += (au * ap) / 2;
+                        damageToEnemyk[kind] += au * ap;
+                    }
+
+                    return {
+                        ...hero,
+                        au: 0
+                    }
+                })
+
+                console.log('damageToEnemyk:', damageToEnemyk);
+
+                const enemysNew = enemys.map( enemy => {
+                    const { wait, waitMax, hp, ap, kind } = enemy;
+
+                    let waitNew = wait - 1;
+                    if (waitNew === -1) {
+                        damageToUser += ap;
+                        waitNew = waitMax;
+                    }
+
+                    return {
+                        ...enemy,
+                        wait: waitNew,
+                        hp: Math.max(0, hp - damageToEnemyk[kind])
+                    }
+                } )
+
+                // damageToUser = Math.round(damageToUser - ((dp / 100) * damageToUser))
+
+                return {
+                    action: 0,
+                    round: round + 1,
+                    heros: herosNew,
+                    dp: 0,
+                    enemys: enemysNew,
+                    hp: Math.max(0, hp - damageToUser)
+                }
+            });
+        }
+    }
+
     render() {
         const { heros, dp, hp, hpMax, enemys, round, action, actionMax } = this.state;
         return (
@@ -125,15 +193,23 @@ class Stage extends Component<Props, State> {
         )
     }
 
-    addAu = (kind, units) => this.setState(({ heros, action }) => ({
-        heros: heros.map(hero => hero.kind !== kind ? hero : { ...hero, au:hero.au+units }),
-        action: action + 1
-    }) )
+    addAu = (kind, units) => this.setState(({ heros, action, actionMax }) => {
+        if (action - 1 === actionMax) return null;
 
-    addDp = () => this.setState(({ dp, action }) => ({
-        dp: dp + 15,
-        action: action + 1
-    }))
+        return {
+            heros: heros.map(hero => hero.kind !== kind ? hero : { ...hero, au:hero.au+units }),
+            action: action + 1
+        }
+    })
+
+    addDp = () => this.setState(({ dp, action, actionMax }) => {
+        if (action - 1 === actionMax) return null;
+
+        return {
+            dp: dp + 15,
+            action: action + 1
+        }
+    })
 }
 
 export default Stage
