@@ -4,7 +4,7 @@ import React, { Component } from 'react'
 import { Text, View } from 'react-native'
 import { randBetween } from 'cmn/lib/all'
 
-import Stone from '../Stone'
+import Stone from './Stone'
 
 import styles, { COL_SIZE, FIELD_SIZE, ROW_SIZE } from  './styles'
 

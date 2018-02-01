@@ -2,7 +2,7 @@
 
 import { StyleSheet } from 'react-native'
 
-import CONFIG from '../../config'
+import CONFIG from '../../../../config'
 
 const STONE_SIZE = 48;
 

@@ -6,7 +6,9 @@ import CONFIG from '../config'
 
 const styles = StyleSheet.create({
     screen: {
-        flexGrow: 1
+        flexGrow: 1,
+        // alignItems: 'center',
+        // justifyContent: 'space-around'
     },
     text: {
         textAlign: 'center',

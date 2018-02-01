@@ -2,8 +2,9 @@
 
 import React, { Component } from 'react'
 import { Text, View } from 'react-native'
+import Button from 'react-native-buttonex'
 
-import Field from './Field'
+import Stage from './Stage'
 
 import styles from  './styles'
 
@@ -15,7 +16,8 @@ class AppContent extends Component<Props> {
     render() {
         return (
             <View style={styles.screen}>
-                <Field />
+                <Stage key={Date.now()} />
+                {/* <Button title="Restart Stage" onPress={()=>this.forceUpdate()} /> */}
             </View>
         )
     }

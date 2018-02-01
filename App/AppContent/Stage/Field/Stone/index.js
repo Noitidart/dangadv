@@ -19,10 +19,10 @@ class Stone extends Component<Props> {
         const { kind, index } = this.props;
 
         return (
-            <TouchableWithoutFeedback onPress={this.handlePress}>
+            <TouchableWithoutFeedback onPressIn={this.handlePress}>
                 <View style={styles.stone}>
                     <View style={[styles.stoneInner, styles[`stone${kind}`]]} />
-                    <Text style={{position:'absolute', elevation:2}}>{this.props.contig}</Text>
+                    { kind !== 0 && <Text style={{position:'absolute', elevation:2}}>{this.props.contig}</Text> }
                 </View>
             </TouchableWithoutFeedback>
         )
