@@ -27,9 +27,8 @@ const styles = StyleSheet.create({
         // justifyContent: 'flex-start',
         alignItems: 'center'
     },
-    actionPrefix: {
-        fontSize: 15,
-        fontWeight: '500',
+    actionTitle: {
+        fontSize: 13,
         color: CONFIG.grey
     },
     action: {
@@ -41,13 +40,12 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
         alignItems: 'center'
     },
-    roundPrefix: {
+    roundTitle: {
         fontSize: 15,
-        fontWeight: '500',
         color: CONFIG.grey
     },
     round: {
-        fontSize: 24,
+        fontSize: 22,
         fontWeight: 'bold',
         color: CONFIG.grey
     },

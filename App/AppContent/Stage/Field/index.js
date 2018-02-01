@@ -11,7 +11,7 @@ import styles, { COL_SIZE, FIELD_SIZE, ROW_SIZE } from  './styles'
 import type { StoneKind } from './Stone'
 
 type Props = {|
-
+    addAu: (kind:number, units:number) => void
 |}
 
 type State = {
@@ -44,12 +44,14 @@ class Field extends Component<Props> {
         const { contigs, stones } = this.state;
         const contig = contigs[index];
 
-        const isMultiStones = contigs.some((aContig, aIndex) => aIndex !== index && aContig === contig);
+        const count = contigs.reduce((sum, aContig) => aContig === contig ? sum + 1 : sum, 0);
 
+        const isMultiStones = count > 1
         if (isMultiStones) {
-            const stonesNew = stones.map((stone, index) => contigs[index] === contig ? 0 : stone); // 0 is StoneKind for no stone
+            const stonesNew = stones.map((stone, index) => contigs[index] === contig ? randBetween(1, 5) : stone); // 0 is StoneKind for no stone
             const contigsNew = this.buildContigs(stonesNew);
             this.setState(() => ({ stones:stonesNew, contigs:contigsNew }));
+            this.props.addAu(stones[index], count);
         } // else nothing contiguous to this
     }
 

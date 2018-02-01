@@ -36,7 +36,7 @@ class Enemy extends Component<Props> {
         return (
             <View style={styles.enemy}>
                 <View style={styles.waitWrap}>
-                    <Text style={styles.wait}>{wait}</Text>
+                    <Text style={styles.wait}>{1 + wait}</Text>
                 </View>
                 <View style={styles.absolute}>
                     <Triangle color={color} direction="up" height={40} width={50} />

@@ -22,7 +22,7 @@ type State= {|
     round: number,
     actionMax: 3,
     action: number, // 0 based
-    dp: 0 | 15 | 30 | 45 | 60, // defence power, but percent
+    dp: number, // defence power, but percent
     heros: Array<{
         kind: number,
         hpMax: number,
@@ -82,8 +82,8 @@ class Stage extends Component<Props, State> {
             }
         ],
         enemys: new Array(randBetween(1, 4)).fill(0).map( (): EnemyType => {
-            const hpMax = randBetween(100, 200);
-            const waitMax = randBetween(1, 3);
+            const hpMax = randBetween(50, 200);
+            const waitMax = randBetween(0, 2);
 
             return {
                 key: randBetween(0, Date.now()),
@@ -108,14 +108,14 @@ class Stage extends Component<Props, State> {
                         <Text style={styles.actionTitle}>Action</Text>
                         <Text style={styles.action}>{1 + actionMax - action}</Text>
                     </View>
-                    <Shield dp={0} />
+                    <Shield dp={dp} addDp={this.addDp} />
                     <View style={styles.roundWrap}>
-                        <Text style={styles.round}>{round}</Text>
+                        <Text style={styles.round}>{1 + round}</Text>
                         <Text style={styles.roundTitle}>Round</Text>
                     </View>
                 </View>
                 <View style={styles.center}>
-                    <Field />
+                    <Field addAu={this.addAu} />
                     <Health hp={hp} hpMax={hpMax} />
                 </View>
                 <View style={styles.enemys}>
@@ -125,6 +125,15 @@ class Stage extends Component<Props, State> {
         )
     }
 
+    addAu = (kind, units) => this.setState(({ heros, action }) => ({
+        heros: heros.map(hero => hero.kind !== kind ? hero : { ...hero, au:hero.au+units }),
+        action: action + 1
+    }) )
+
+    addDp = () => this.setState(({ dp, action }) => ({
+        dp: dp + 15,
+        action: action + 1
+    }))
 }
 
 export default Stage
