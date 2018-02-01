@@ -52,7 +52,10 @@ class Field extends Component<Props> {
 
         const isMultiStones = count > 1
         if (isMultiStones) {
-            const stonesNew = stones.map((stone, index) => contigs[index] === contig ? randBetween(1, 5) : stone); // 0 is StoneKind for no stone
+            const { action, actionMax } = this.props;
+            const isLastAction = action === actionMax;
+
+            const stonesNew = stones.map((stone, index) => contigs[index] === contig ? isLastAction ? 0 : randBetween(1, 5) : stone); // 0 is StoneKind for no stone
 
             const contigsNew = this.buildContigs(stonesNew);
             this.setState(() => ({ stones:stonesNew, contigs:contigsNew }));

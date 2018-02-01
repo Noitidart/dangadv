@@ -47,7 +47,7 @@ const KIND_MIN = 1;
 
 function genEnemys(): EnemyType[] {
     return new Array(randBetween(1, 4)).fill(0).map( (): EnemyType => {
-        const hpMax = randBetween(50, 50);
+        const hpMax = randBetween(10, 50);
         const waitMax = randBetween(0, 2);
 
         return {
@@ -74,31 +74,31 @@ class StageDumb extends Component<Props, State> {
             {
                 kind: 1,
                 hpMax: 20,
-                ap: 10,
+                ap: 1,
                 au: 0
             },
             {
                 kind: 2,
                 hpMax: 20,
-                ap: 10,
+                ap: 1,
                 au: 0
             },
             {
                 kind: 3,
                 hpMax: 20,
-                ap: 10,
+                ap: 1,
                 au: 0
             },
             {
                 kind: 4,
                 hpMax: 20,
-                ap: 10,
+                ap: 1,
                 au: 0
             },
             {
                 kind: 5,
                 hpMax: 20,
-                ap: 10,
+                ap: 1,
                 au: 0
             }
         ],
@@ -136,7 +136,7 @@ class StageDumb extends Component<Props, State> {
                     </View>
                 </View>
                 <View style={styles.center}>
-                    <Field addAu={this.addAu} action={action} actionMax={actionMax} />
+                    <Field addAu={this.addAu} action={action} actionMax={actionMax} key={`${wave}_${round}`} />
                     <View style={styles.centerRow}>
                         <Health hp={hp} hpMax={hpMax} />
                         <Shield dp={dp} addDp={this.addDp} />
@@ -181,9 +181,9 @@ class StageDumb extends Component<Props, State> {
                     console.log(`hero${kind} is attacking`);
 
                     const kindDamage = {
-                        [kind]: au * ap,
-                        [kind - 1 < KIND_MIN ? KIND_MAX : kind - 1]: (au * ap) / 2,
-                        [kind + 1 > KIND_MAX ? KIND_MIN : kind + 1]: (au * ap) / 2
+                        [kind]: Math.round(au * ap),
+                        [kind - 1 < KIND_MIN ? KIND_MAX : kind - 1]: Math.round((au * ap) / 2),
+                        [kind + 1 > KIND_MAX ? KIND_MIN : kind + 1]: Math.round((au * ap) / 2)
                     };
 
                     this.setState( ({ heros, enemys }) => {
