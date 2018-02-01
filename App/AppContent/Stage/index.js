@@ -215,7 +215,7 @@ class StageDumb extends Component<Props, State> {
             const { enemys } = this.state;
             let i = -1;
             for (const enemy of enemys) {
-                const { hp:userHp } = this.state;
+                const { hp:userHp, dp } = this.state;
                 i++;
                 const isAlive = enemy.hp > 0;
                 const isNotWaiting = enemy.wait === 0;
@@ -223,7 +223,8 @@ class StageDumb extends Component<Props, State> {
                     await delay(1000);
                     console.log(`enemy at index ${i} is attacking`);
 
-                    const userHpNew = userHp - enemy.ap;
+                    const damage = Math.round(enemy.ap - (dp * enemy.ap / 100))
+                    const userHpNew = userHp - damage;
                     this.setState( () => ({ hp:userHpNew }) );
 
                     await this.monitor( (props, state) => state.hp === userHpNew );
