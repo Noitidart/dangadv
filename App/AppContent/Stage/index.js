@@ -47,7 +47,7 @@ const KIND_MIN = 1;
 
 function genEnemys(): EnemyType[] {
     return new Array(randBetween(1, 4)).fill(0).map( (): EnemyType => {
-        const hpMax = randBetween(10, 50);
+        const hpMax = randBetween(10, 30);
         const waitMax = randBetween(0, 2);
 
         return {
@@ -61,8 +61,8 @@ function genEnemys(): EnemyType[] {
     } )
 }
 
-class StageDumb extends Component<Props, State> {
-    state = {
+function genInitialState(): State {
+    return {
         wave: 0,
         hpMax: 100,
         hp: 100,
@@ -104,6 +104,10 @@ class StageDumb extends Component<Props, State> {
         ],
         enemys: genEnemys()
     }
+}
+
+class StageDumb extends Component<Props, State> {
+    state = genInitialState()
 
     componentDidUpdate(propsOld, stateOld) {
         const { action, actionMax } = this.state;
@@ -170,6 +174,46 @@ class StageDumb extends Component<Props, State> {
     sequenceFight = async () => {
         console.log('sequenceFight start');
 
+        const testWaveLost = (): boolean => {
+            const { hp } = this.state;
+            if (hp === 0) {
+                return true;
+            }
+
+            return false;
+        }
+
+        const doWaveLost = async () => {
+            try {
+                await new Promise( (resolve, reject) => Alert.alert('Game Over', 'You died!', [{ text:'Play Again!', onPress:resolve }]), { onDismiss:reject } );
+                // play again
+                await delay(1000);
+                this.setState(() => genInitialState());
+            } catch(ex) {
+                // dont play again
+            }
+        }
+
+        const doWaveWon = async () => {
+            await new Promise( resolve => Alert.alert('Wave Defeated', 'You beat this wave! But watchout, another wave is coming...', [{ text:'Bring it on!', onPress:resolve }], { cancelable:false }) );
+            await delay(1000);
+
+            this.setState(({ wave, heros }) => ({
+                round: 0,
+                wave: wave + 1,
+                action: 0,
+                heros: heros.some(hero => hero.au !== 0) ? heros.map(hero => ({ ...hero, au:0 })) : heros, // reset heros au if needed
+                dp: 0,
+                enemys: genEnemys()
+            }));
+        }
+        const testWaveWon = () => {
+            const { enemys } = this.state;
+            const isAnyEnemyAlive = enemys.some(enemy => enemy.hp > 0);
+            if (isAnyEnemyAlive) return false;
+            else return true;
+        }
+
         // heros attack if have au && reset au
         {
             const { heros } = this.state;
@@ -205,7 +249,7 @@ class StageDumb extends Component<Props, State> {
                     } );
 
                     await this.monitor( (props, state) => state.heros.find(hero => hero.kind === kind).au === 0 );
-                    // TODO: testWaveWon()
+                    if (testWaveWon()) return doWaveWon();
                 }
             }
         }
@@ -224,10 +268,12 @@ class StageDumb extends Component<Props, State> {
                     console.log(`enemy at index ${i} is attacking`);
 
                     const damage = Math.round(enemy.ap - (dp * enemy.ap / 100))
-                    const userHpNew = userHp - damage;
+                    const userHpNew = Math.max(0, userHp - damage);
                     this.setState( () => ({ hp:userHpNew }) );
 
                     await this.monitor( (props, state) => state.hp === userHpNew );
+
+                    if (testWaveLost()) return doWaveLost();
                 }
             }
         }
@@ -241,20 +287,19 @@ class StageDumb extends Component<Props, State> {
             // show scoreboard and persist high scores
 
         {
-            const { hp:userHp } = this.state;
-
-            if (userHp === 0) {
-                // user is dead
-                alert('Game over you died!');
+            if (testWaveLost()) {
+                return doWaveLost();
             } else {
-                const { enemys } = this.state;
-                const isAnyEnemyAlive = enemys.some(enemy => enemy.hp > 0);
+                if (testWaveWon()) {
+                    return doWaveWon();
+                } else {
+                    // some enemys are alive because testWaveWon() returned false
+                    // round won
 
-                if (isAnyEnemyAlive) {
                     console.log('starting next round');
                     await delay(1000);
 
-                    const { round } = this.state;
+                    const { round, enemys } = this.state;
 
                     const enemysNew = enemys.map(enemy => ({
                         ...enemy,
@@ -270,19 +315,6 @@ class StageDumb extends Component<Props, State> {
                         enemys: enemysNew
                     }));
                     await this.monitor( (props, state) => state.round === roundNew );
-                } else {
-                    await new Promise( resolve => Alert.alert('Wave Defeated', 'You beat this wave! But watchout, another wave is coming...', [{ text:'Bring it on!', onPress:resolve }], { cancelable:false }) );
-                    await delay(1000);
-
-                    const { wave } = this.state;
-                    const waveNew = wave + 1;
-                    this.setState(() => ({
-                        round: 0,
-                        wave: waveNew,
-                        action: 0,
-                        dp: 0,
-                        enemys: genEnemys()
-                    }));
                 }
             }
         }
