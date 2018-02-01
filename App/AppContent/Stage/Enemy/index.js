@@ -19,7 +19,7 @@ type Props = {|
 
 class Enemy extends Component<Props> {
     render() {
-        const { kind, ap, hp, hpMax, wait } = this.props;
+        const { kind, ap, hp, hpMax, wait, waitMax } = this.props;
 
         const color = (function() {
             switch (kind) {
@@ -33,11 +33,16 @@ class Enemy extends Component<Props> {
 
         const width = Math.round((hp / hpMax) * 100) + '%';
 
+        const isDead = hp === 0;
+
         return (
-            <View style={styles.enemy}>
-                <View style={styles.waitWrap}>
-                    <Text style={styles.wait}>{1 + wait}</Text>
-                </View>
+            <View style={[styles.enemy, isDead && styles.dead]}>
+                { !isDead &&
+                    <View style={styles.waitWrap}>
+                        <Text style={styles.wait}>{wait}</Text>
+                        <Text style={styles.waitMax}>{waitMax}</Text>
+                    </View>
+                }
                 <View style={styles.absolute}>
                     <Triangle color={color} direction="up" height={40} width={50} />
                 </View>

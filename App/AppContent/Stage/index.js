@@ -12,11 +12,10 @@ import Shield from './Shield'
 
 import styles from  './styles'
 
-type Props = {|
-    level: number
-|}
+type Props = {||}
 
 type State= {|
+    wave: number, // 0 based
     hpMax: number,
     hp: number, // sum of heros hpMax
     round: number,
@@ -41,8 +40,25 @@ type EnemyType = {
     ap: number // attack power
 }
 
+function genEnemys(): EnemyType[] {
+    return new Array(randBetween(1, 4)).fill(0).map( (): EnemyType => {
+        const hpMax = randBetween(50, 50);
+        const waitMax = randBetween(0, 2);
+
+        return {
+            kind: randBetween(1, 5),
+            hpMax,
+            hp: hpMax,
+            waitMax,
+            wait: waitMax,
+            ap: randBetween(3, 10)
+        }
+    } )
+}
+
 class Stage extends Component<Props, State> {
     state = {
+        wave: 0,
         hpMax: 100,
         hp: 100,
         round: 0,
@@ -81,20 +97,7 @@ class Stage extends Component<Props, State> {
                 au: 0
             }
         ],
-        enemys: new Array(randBetween(1, 4)).fill(0).map( (): EnemyType => {
-            const hpMax = randBetween(50, 200);
-            const waitMax = randBetween(0, 2);
-
-            return {
-                key: randBetween(0, Date.now()),
-                kind: randBetween(1, 5),
-                hpMax,
-                hp: hpMax,
-                waitMax,
-                wait: waitMax,
-                ap: randBetween(3, 10)
-            }
-        } )
+        enemys: genEnemys()
     }
 
     componentDidUpdate() {
@@ -163,7 +166,14 @@ class Stage extends Component<Props, State> {
                 if (isAllEnemysDead && isUserDead) {
                     alert('DRAW...');
                 } else if (isAllEnemysDead) {
-                    alert('WINNER!!!');
+                    alert('You beat this wave! Another wave incoming!');
+                    setTimeout(() =>
+                        this.setState(({ wave }) => ({
+                            wave: wave + 1,
+                            round: 0,
+                            enemys: genEnemys()
+                        }))
+                    , 0)
                 } else if (isUserDead) {
                     alert('You lose =(');
                 }
@@ -181,7 +191,7 @@ class Stage extends Component<Props, State> {
     }
 
     render() {
-        const { heros, dp, hp, hpMax, enemys, round, action, actionMax } = this.state;
+        const { heros, dp, hp, hpMax, enemys, round, action, actionMax, wave } = this.state;
         return (
             <View style={styles.stage}>
                 <View style={styles.heros}>
@@ -193,9 +203,13 @@ class Stage extends Component<Props, State> {
                         <Text style={styles.action}>{1 + actionMax - action}</Text>
                     </View>
                     <Shield dp={dp} addDp={this.addDp} />
+                    {/* <View style={styles.waveWrap}>
+                        <Text style={styles.wave}>{1 + wave}</Text>
+                        <Text style={styles.waveTitle}>Wave</Text>
+                    </View> */}
                     <View style={styles.roundWrap}>
-                        <Text style={styles.round}>{1 + round}</Text>
-                        <Text style={styles.roundTitle}>Round</Text>
+                        <Text style={styles.round}>{1 + wave}</Text>
+                        <Text style={styles.roundTitle}>Wave</Text>
                     </View>
                 </View>
                 <View style={styles.center}>

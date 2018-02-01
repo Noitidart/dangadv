@@ -11,6 +11,9 @@ const styles = StyleSheet.create({
         // justifyContent: 'center',
         alignItems: 'center'
     },
+    dead: {
+        opacity: 0.1
+    },
 
     absolute: {
         position: 'absolute'
@@ -45,11 +48,18 @@ const styles = StyleSheet.create({
     waitWrap: {
         position: 'absolute',
         top: 0,
-        left: 0
+        left: 0,
+        flexDirection: 'row'
     },
     wait: {
         fontWeight: '500',
         fontSize: 14,
+        color: CONFIG.grey
+    },
+    waitMax: {
+        marginTop: -3,
+        marginLeft: 2,
+        fontSize: 8,
         color: CONFIG.grey
     }
 })

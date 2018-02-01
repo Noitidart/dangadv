@@ -49,6 +49,19 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: CONFIG.grey
     },
+    waveWrap: {
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    waveTitle: {
+        fontSize: 15,
+        color: CONFIG.grey
+    },
+    wave: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: CONFIG.grey
+    },
 
     center: {
         flex: 3,
