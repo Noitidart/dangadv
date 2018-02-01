@@ -247,17 +247,21 @@ class StageDumb extends Component<Props, State> {
                 // user is dead
                 alert('Game over you died!');
             } else {
-                const { enemys, round } = this.state;
+                const { enemys } = this.state;
                 const isAnyEnemyAlive = enemys.some(enemy => enemy.hp > 0);
-                const roundNew = round + 1;
+
                 if (isAnyEnemyAlive) {
                     console.log('starting next round');
                     await delay(1000);
+
+                    const { round } = this.state;
 
                     const enemysNew = enemys.map(enemy => ({
                         ...enemy,
                         wait: enemy.wait - 1 > -1 ? enemy.wait - 1 : enemy.waitMax
                     }));
+
+                    const roundNew = round + 1;
 
                     this.setState(() => ({
                         round: roundNew,
@@ -273,7 +277,7 @@ class StageDumb extends Component<Props, State> {
                     const { wave } = this.state;
                     const waveNew = wave + 1;
                     this.setState(() => ({
-                        round: roundNew,
+                        round: 0,
                         wave: waveNew,
                         action: 0,
                         dp: 0,
