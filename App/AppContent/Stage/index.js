@@ -152,13 +152,29 @@ class Stage extends Component<Props, State> {
 
                 // damageToUser = Math.round(damageToUser - ((dp / 100) * damageToUser))
 
+                const hpNew = Math.max(0, hp - damageToUser);
+
+                const sumEnemysHp = enemysNew.reduce((sum, { hp }) => sum + hp, 0);
+                console.log('sumEnemysHp:', sumEnemysHp);
+
+                const isAllEnemysDead = sumEnemysHp === 0;
+                const isUserDead = hpNew === 0;
+
+                if (isAllEnemysDead && isUserDead) {
+                    alert('DRAW...');
+                } else if (isAllEnemysDead) {
+                    alert('WINNER!!!');
+                } else if (isUserDead) {
+                    alert('You lose =(');
+                }
+
                 return {
                     action: 0,
                     round: round + 1,
                     heros: herosNew,
                     dp: 0,
                     enemys: enemysNew,
-                    hp: Math.max(0, hp - damageToUser)
+                    hp: hpNew
                 }
             });
         }
