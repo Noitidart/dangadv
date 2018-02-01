@@ -1,7 +1,7 @@
 // @flow
 
 import React, { Component } from 'react'
-import { Text, TouchableWithoutFeedback, View, Alert } from 'react-native'
+import { Text, TouchableWithoutFeedback, View, Alert, Platform } from 'react-native'
 import withMonitor from 'react-with-monitor'
 import { randBetween } from 'cmn/lib/all'
 import { delay } from 'redux-saga'
@@ -65,7 +65,7 @@ function genInitialState(): State {
     return {
         wave: 0,
         hpMax: 100,
-        hp: 100,
+        hp: 2,
         round: 0,
         actionMax: 3,
         action: 0,
@@ -174,24 +174,17 @@ class StageDumb extends Component<Props, State> {
     sequenceFight = async () => {
         console.log('sequenceFight start');
 
-        const testWaveLost = (): boolean => {
-            const { hp } = this.state;
-            if (hp === 0) {
-                return true;
-            }
-
-            return false;
-        }
+        const testWaveLost = (): boolean => this.state.hp === 0 ? true : false
+        const testWaveWon = (): boolean => !this.state.enemys.some(enemy => enemy.hp > 0) // !isAnyEnemyAlive
 
         const doWaveLost = async () => {
             try {
-                await new Promise( (resolve, reject) => Alert.alert('Game Over', 'You died!', [{ text:'Play Again!', onPress:resolve }]), { onDismiss:reject } );
+                if (Platform.OS === 'ios') await new Promise( (resolve, reject) => Alert.alert('Game Over', 'You died!', [{ text:'Play Again!', onPress:resolve }, { text:'Close', onPress:reject, style:'cancel' }]) );
+                else await new Promise( (resolve, reject) => Alert.alert('Game Over', 'You died!', [{ text:'Play Again!', onPress:resolve }], { onDismiss:reject }) );
                 // play again
                 await delay(1000);
                 this.setState(() => genInitialState());
-            } catch(ex) {
-                // dont play again
-            }
+            } catch(ignore) {} // dont play again
         }
 
         const doWaveWon = async () => {
@@ -206,12 +199,6 @@ class StageDumb extends Component<Props, State> {
                 dp: 0,
                 enemys: genEnemys()
             }));
-        }
-        const testWaveWon = () => {
-            const { enemys } = this.state;
-            const isAnyEnemyAlive = enemys.some(enemy => enemy.hp > 0);
-            if (isAnyEnemyAlive) return false;
-            else return true;
         }
 
         // heros attack if have au && reset au
