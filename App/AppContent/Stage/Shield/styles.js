@@ -6,8 +6,8 @@ import CONFIG from '../../../config'
 
 const styles = StyleSheet.create({
     shield: {
-        width: 56,
-        height: 56,
+        width: 48,
+        height: 48,
         borderRadius: 16,
         backgroundColor: CONFIG.orange,
         alignItems: 'center',

@@ -37,16 +37,11 @@ const styles = StyleSheet.create({
         color: CONFIG.grey
     },
     roundWrap: {
-        justifyContent: 'flex-end',
+        justifyContent: 'center',
         alignItems: 'center'
     },
-    roundTitle: {
+    roundLabel: {
         fontSize: 15,
-        color: CONFIG.grey
-    },
-    round: {
-        fontSize: 22,
-        fontWeight: 'bold',
         color: CONFIG.grey
     },
     waveWrap: {
@@ -68,6 +63,10 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around',
         alignItems: 'center',
         // backgroundColor: 'pink'
+    },
+    centerRow: {
+        flexDirection: 'row',
+        alignItems: 'center'
     },
 
     enemys: {

@@ -18,8 +18,9 @@ class Health extends Component<Props> {
 
         return (
             <View style={styles.health}>
-                <View style={[styles.fill, { width }]} />
-                <Text style={styles.label}>{hp} / {hpMax}</Text>
+                <View style={[styles.fill, { width }]}>
+                    <Text style={styles.label}>{hp} / {hpMax}</Text>
+                </View>
             </View>
         )
     }

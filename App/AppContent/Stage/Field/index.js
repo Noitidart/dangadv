@@ -11,7 +11,9 @@ import styles, { COL_SIZE, FIELD_SIZE, ROW_SIZE } from  './styles'
 import type { StoneKind } from './Stone'
 
 type Props = {|
-    addAu: (kind:number, units:number) => void
+    addAu: (kind:number, units:number) => void,
+    action: number,
+    actionMax: number
 |}
 
 type State = {
@@ -32,16 +34,18 @@ class Field extends Component<Props> {
 
     render() {
         const { stones } = this.state;
+        const { action, actionMax } = this.props;
 
         return (
             <View style={styles.field}>
-                { stones.map( (kind, i) => <Stone kind={kind} index={i} clearStonesAt={this.clearStonesAt} key={`${getRow(i)}${getCol(i)}`} contig={this.state.contigs[i]} /> ) }
+                { stones.map( (kind, i) => <Stone kind={kind} index={i} action={action} actionMax={actionMax} clearStonesAt={this.clearStonesAt} key={`${getRow(i)}${getCol(i)}`} contig={this.state.contigs[i]} /> ) }
             </View>
         )
     }
 
     clearStonesAt = (index: number) => {
         const { contigs, stones } = this.state;
+
         const contig = contigs[index];
 
         const count = contigs.reduce((sum, aContig) => aContig === contig ? sum + 1 : sum, 0);
@@ -49,6 +53,7 @@ class Field extends Component<Props> {
         const isMultiStones = count > 1
         if (isMultiStones) {
             const stonesNew = stones.map((stone, index) => contigs[index] === contig ? randBetween(1, 5) : stone); // 0 is StoneKind for no stone
+
             const contigsNew = this.buildContigs(stonesNew);
             this.setState(() => ({ stones:stonesNew, contigs:contigsNew }));
             this.props.addAu(stones[index], count);

@@ -7,13 +7,11 @@ import CONFIG from '../../../config'
 const styles = StyleSheet.create({
     health: {
         width: '100%',
-        alignItems: 'center'
+        backgroundColor: 'pink'
     },
     fill: {
         backgroundColor: CONFIG.red,
-        height: '100%',
-        position: 'absolute',
-        left: 0
+        alignItems: 'center'
     },
     label: {
         fontWeight: '500',

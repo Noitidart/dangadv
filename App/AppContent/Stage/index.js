@@ -1,8 +1,10 @@
 // @flow
 
 import React, { Component } from 'react'
-import { Text, TouchableWithoutFeedback, View } from 'react-native'
+import { Text, TouchableWithoutFeedback, View, Alert } from 'react-native'
+import withMonitor from 'react-with-monitor'
 import { randBetween } from 'cmn/lib/all'
+import { delay } from 'redux-saga'
 
 import Enemy from './Enemy'
 import Field from './Field'
@@ -40,13 +42,16 @@ type EnemyType = {
     ap: number // attack power
 }
 
+const KIND_MAX = 5;
+const KIND_MIN = 1;
+
 function genEnemys(): EnemyType[] {
     return new Array(randBetween(1, 4)).fill(0).map( (): EnemyType => {
         const hpMax = randBetween(50, 50);
         const waitMax = randBetween(0, 2);
 
         return {
-            kind: randBetween(1, 5),
+            kind: randBetween(KIND_MIN, KIND_MAX),
             hpMax,
             hp: hpMax,
             waitMax,
@@ -56,7 +61,7 @@ function genEnemys(): EnemyType[] {
     } )
 }
 
-class Stage extends Component<Props, State> {
+class StageDumb extends Component<Props, State> {
     state = {
         wave: 0,
         hpMax: 100,
@@ -100,98 +105,18 @@ class Stage extends Component<Props, State> {
         enemys: genEnemys()
     }
 
-    componentDidUpdate() {
+    componentDidUpdate(propsOld, stateOld) {
         const { action, actionMax } = this.state;
+        const { action:actionOld } = stateOld;
 
-        if (action - 1 === actionMax) {
-            this.setState(({ enemys, round, hp, heros, dp }) => {
-                let damageToUser = 0;
-
-                const damageToEnemyk = {
-                    '1': 0,
-                    '2': 0,
-                    '3': 0,
-                    '4': 0,
-                    '5': 0
-                }
-
-                const herosNew = heros.map( hero => {
-                    const { kind, au, ap } = hero;
-
-                    if (au) {
-                        let halfKind0 = kind - 1;
-                        let halfKind1 = kind + 1
-                        if (halfKind0 === 0) halfKind0 = 5; // MAGIC:
-                        if (halfKind1 === 6) halfKind1 = 1 // MAGIC:
-
-                        damageToEnemyk[halfKind0] += (au * ap) / 2;
-                        damageToEnemyk[halfKind1] += (au * ap) / 2;
-                        damageToEnemyk[kind] += au * ap;
-                    }
-
-                    return {
-                        ...hero,
-                        au: 0
-                    }
-                })
-
-                console.log('damageToEnemyk:', damageToEnemyk);
-
-                const enemysNew = enemys.map( enemy => {
-                    const { wait, waitMax, hp, ap, kind } = enemy;
-
-                    let waitNew = wait - 1;
-                    if (waitNew === -1) {
-                        damageToUser += ap;
-                        waitNew = waitMax;
-                    }
-
-                    return {
-                        ...enemy,
-                        wait: waitNew,
-                        hp: Math.max(0, hp - damageToEnemyk[kind])
-                    }
-                } )
-
-                // damageToUser = Math.round(damageToUser - ((dp / 100) * damageToUser))
-
-                const hpNew = Math.max(0, hp - damageToUser);
-
-                const sumEnemysHp = enemysNew.reduce((sum, { hp }) => sum + hp, 0);
-                console.log('sumEnemysHp:', sumEnemysHp);
-
-                const isAllEnemysDead = sumEnemysHp === 0;
-                const isUserDead = hpNew === 0;
-
-                if (isAllEnemysDead && isUserDead) {
-                    alert('DRAW...');
-                } else if (isAllEnemysDead) {
-                    alert('You beat this wave! Another wave incoming!');
-                    setTimeout(() =>
-                        this.setState(({ wave }) => ({
-                            wave: wave + 1,
-                            round: 0,
-                            enemys: genEnemys()
-                        }))
-                    , 0)
-                } else if (isUserDead) {
-                    alert('You lose =(');
-                }
-
-                return {
-                    action: 0,
-                    round: round + 1,
-                    heros: herosNew,
-                    dp: 0,
-                    enemys: enemysNew,
-                    hp: hpNew
-                }
-            });
+        if (action !== actionOld && action - 1 === actionMax) {
+            this.sequenceFight();
         }
     }
 
     render() {
         const { heros, dp, hp, hpMax, enemys, round, action, actionMax, wave } = this.state;
+
         return (
             <View style={styles.stage}>
                 <View style={styles.heros}>
@@ -202,22 +127,23 @@ class Stage extends Component<Props, State> {
                         <Text style={styles.actionTitle}>Action</Text>
                         <Text style={styles.action}>{1 + actionMax - action}</Text>
                     </View>
-                    <Shield dp={dp} addDp={this.addDp} />
-                    {/* <View style={styles.waveWrap}>
+                    <View style={styles.roundWrap}>
+                        <Text style={styles.roundLabel}>Round {1 + round}</Text>
+                    </View>
+                    <View style={styles.waveWrap}>
                         <Text style={styles.wave}>{1 + wave}</Text>
                         <Text style={styles.waveTitle}>Wave</Text>
-                    </View> */}
-                    <View style={styles.roundWrap}>
-                        <Text style={styles.round}>{1 + wave}</Text>
-                        <Text style={styles.roundTitle}>Wave</Text>
                     </View>
                 </View>
                 <View style={styles.center}>
-                    <Field addAu={this.addAu} />
-                    <Health hp={hp} hpMax={hpMax} />
+                    <Field addAu={this.addAu} action={action} actionMax={actionMax} />
+                    <View style={styles.centerRow}>
+                        <Health hp={hp} hpMax={hpMax} />
+                        <Shield dp={dp} addDp={this.addDp} />
+                    </View>
                 </View>
                 <View style={styles.enemys}>
-                    { enemys.map( (props, index) => <Enemy {...props} key={index} /> )}
+                    { enemys.map( (props, index) => <Enemy {...props} key={`${wave}_${index}`} /> )}
                 </View>
             </View>
         )
@@ -240,6 +166,124 @@ class Stage extends Component<Props, State> {
             action: action + 1
         }
     })
+
+    sequenceFight = async () => {
+        console.log('sequenceFight start');
+
+        // heros attack if have au && reset au
+        {
+            const { heros } = this.state;
+            for (const hero of heros) {
+                const { au, ap, kind } = hero;
+
+                if (au) {
+                    await delay(1000);
+                    console.log(`hero${kind} is attacking`);
+
+                    const kindDamage = {
+                        [kind]: au * ap,
+                        [kind - 1 < KIND_MIN ? KIND_MAX : kind - 1]: (au * ap) / 2,
+                        [kind + 1 > KIND_MAX ? KIND_MIN : kind + 1]: (au * ap) / 2
+                    };
+
+                    this.setState( ({ heros, enemys }) => {
+
+                        // attack enemys that are alive
+                        const enemysNew = enemys.map(enemy => !(enemy.kind in kindDamage || enemy.hp === 0) ? enemy : {
+                            ...enemy,
+                            hp: Math.max(0, enemy.hp - kindDamage[enemy.kind])
+                        });
+                        const herosNew = heros.map(hero => hero.kind !== kind ? hero : {
+                            ...hero,
+                            au: 0
+                        });
+
+                        return {
+                            heros: herosNew,
+                            enemys: enemysNew
+                        }
+                    } );
+
+                    await this.monitor( (props, state) => state.heros.find(hero => hero.kind === kind).au === 0 );
+                    // TODO: testWaveWon()
+                }
+            }
+        }
+
+        // enemys attack if alive and if user alive
+        {
+            const { enemys } = this.state;
+            let i = -1;
+            for (const enemy of enemys) {
+                const { hp:userHp } = this.state;
+                i++;
+                const isAlive = enemy.hp > 0;
+                const isNotWaiting = enemy.wait === 0;
+                if (isAlive && isNotWaiting) {
+                    await delay(1000);
+                    console.log(`enemy at index ${i} is attacking`);
+
+                    const userHpNew = userHp - enemy.ap;
+                    this.setState( () => ({ hp:userHpNew }) );
+
+                    await this.monitor( (props, state) => state.hp === userHpNew );
+                }
+            }
+        }
+
+        console.log('sequenceFight done - will now do next round, next wave, or game over');
+
+        // if user is alive
+            // if enemys alive, start next round && reset action && reset dp && decrement wait of enemys that are alive
+            // else no enemys alive, start next wave & reset round & reset action & reset dp & generate new enemys
+        // if user is dead
+            // show scoreboard and persist high scores
+
+        {
+            const { hp:userHp } = this.state;
+
+            if (userHp === 0) {
+                // user is dead
+                alert('Game over you died!');
+            } else {
+                const { enemys, round } = this.state;
+                const isAnyEnemyAlive = enemys.some(enemy => enemy.hp > 0);
+                const roundNew = round + 1;
+                if (isAnyEnemyAlive) {
+                    console.log('starting next round');
+                    await delay(1000);
+
+                    const enemysNew = enemys.map(enemy => ({
+                        ...enemy,
+                        wait: enemy.wait - 1 > -1 ? enemy.wait - 1 : enemy.waitMax
+                    }));
+
+                    this.setState(() => ({
+                        round: roundNew,
+                        action: 0,
+                        dp: 0,
+                        enemys: enemysNew
+                    }));
+                    await this.monitor( (props, state) => state.round === roundNew );
+                } else {
+                    await new Promise( resolve => Alert.alert('Wave Defeated', 'You beat this wave! But watchout, another wave is coming...', [{ text:'Bring it on!', onPress:resolve }], { cancelable:false }) );
+                    await delay(1000);
+
+                    const { wave } = this.state;
+                    const waveNew = wave + 1;
+                    this.setState(() => ({
+                        round: roundNew,
+                        wave: waveNew,
+                        action: 0,
+                        dp: 0,
+                        enemys: genEnemys()
+                    }));
+                }
+            }
+        }
+    }
 }
+
+const Stage = withMonitor(StageDumb)
 
 export default Stage
