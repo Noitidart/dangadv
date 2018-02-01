@@ -17,6 +17,7 @@ import styles from  './styles'
 type Props = {||}
 
 type State= {|
+    stageId: number, // to fix reset field on loss in round 1/wave1
     wave: number, // 0 based
     hpMax: number,
     hp: number, // sum of heros hpMax
@@ -63,9 +64,10 @@ function genEnemys(): EnemyType[] {
 
 function genInitialState(): State {
     return {
+        stageId: Date.now(),
         wave: 0,
         hpMax: 100,
-        hp: 2,
+        hp: 100,
         round: 0,
         actionMax: 3,
         action: 0,
@@ -119,7 +121,7 @@ class StageDumb extends Component<Props, State> {
     }
 
     render() {
-        const { heros, dp, hp, hpMax, enemys, round, action, actionMax, wave } = this.state;
+        const { heros, dp, hp, hpMax, enemys, round, action, actionMax, wave, stageId } = this.state;
 
         return (
             <View style={styles.stage}>
@@ -140,7 +142,7 @@ class StageDumb extends Component<Props, State> {
                     </View>
                 </View>
                 <View style={styles.center}>
-                    <Field addAu={this.addAu} action={action} actionMax={actionMax} key={`${wave}_${round}`} />
+                    <Field addAu={this.addAu} action={action} actionMax={actionMax} key={`${wave}_${round}_${stageId}`} />
                     <View style={styles.centerRow}>
                         <Health hp={hp} hpMax={hpMax} />
                         <Shield dp={dp} addDp={this.addDp} />
