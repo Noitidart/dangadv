@@ -168,7 +168,7 @@ class StageDumb extends Component<Props, State> {
         if (action - 1 === actionMax) return null;
 
         return {
-            dp: dp + 15,
+            dp: dp + 25,
             action: action + 1
         }
     })
