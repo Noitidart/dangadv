@@ -8,8 +8,8 @@ next combo absorbed by all heros -
 
 ### Round Sequence
 
-round start
-4x action
-heros attack
-enemys attack
-reduce enemy waits (because a wait of 1 round was done)
+1. round start
+2. 4x action
+3. heros attack (top to bottom)
+4. enemys attack (top to bottom for each col, and left to right of col)
+5. reduce enemy waits (because a wait of 1 round was done)
